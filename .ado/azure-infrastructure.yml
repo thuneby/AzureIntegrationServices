@@ -1,0 +1,114 @@
+# Terraform pipeline
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  resource_group_name: 'rg-terraform'
+  storage_account_name: 'stplatformterraform'
+  container_name: 'tfstatefile-infrastructure'
+  key: 'infrastructure'
+
+stages:
+  - stage: BuildInfrastructure
+    jobs:
+      - job: validate
+        continueOnError: false
+        steps:
+        - task: TerraformInstaller@1
+          displayName: tfinstall
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTaskV4@4
+          displayName: Terraform init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            backendServiceArm: 'DevTestServiceConnection'
+            backendAzureRmResourceGroupName: '$(resource_group_name)'
+            backendAzureRmStorageAccountName: '$(storage_account_name)'
+            backendAzureRmContainerName: '$(container_name)'
+            backendAzureRmKey: '$(key)'
+        - task: TerraformTaskV4@4
+          displayName: Validate
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+
+  - stage: PlanInfrastructure
+    jobs:
+      - job: plan
+        steps:
+        - task: TerraformInstaller@1
+          displayName: tfinstall
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTaskV4@4
+          displayName: Terraform init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            backendServiceArm: 'DevTestServiceConnection'
+            backendAzureRmResourceGroupName: '$(resource_group_name)'
+            backendAzureRmStorageAccountName: '$(storage_account_name)'
+            backendAzureRmContainerName: '$(container_name)'
+            backendAzureRmKey: '$(key)'
+        - task: TerraformTaskV4@4
+          displayName: Terraform Plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            environmentServiceNameAzureRM: 'DevTestServiceConnection'
+
+  - stage: ApprovePlan
+    jobs:
+      - job: approve
+        displayName: Approve Plan
+        pool: server
+        steps:
+        - task: ManualValidation@0
+          timeoutInMinutes: 1440 # task times out in 1 day
+          inputs:
+            notifyUsers: 'thuneby@yahoo.dk'
+            instructions: 'Please validate the Terraform plan and resume'
+            onTimeout: reject
+
+  - stage: ApplyInfrastructure
+    jobs:
+      - job: apply
+        steps:
+        - task: TerraformInstaller@1
+          displayName: tfinstall
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTaskV4@4
+          displayName: Terraform init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            backendServiceArm: 'DevTestServiceConnection'
+            backendAzureRmResourceGroupName: '$(resource_group_name)'
+            backendAzureRmStorageAccountName: '$(storage_account_name)'
+            backendAzureRmContainerName: '$(container_name)'
+            backendAzureRmKey: '$(key)'
+        - task: TerraformTaskV4@4
+          displayName: Terraform Plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            environmentServiceNameAzureRM: 'DevTestServiceConnection'
+        - task: TerraformTaskV4@4
+          displayName: Terraform Apply
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            environmentServiceNameAzureRM: 'DevTestServiceConnection'

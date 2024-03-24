@@ -3,6 +3,11 @@ variable "location" {
   default = "WestEurope"
 }
 
+variable "env" {
+  type        = string
+  description = "The environment. dev, test or prod."
+}
+
 variable "apim_sku" {
   type    = string
   default = "Consumption_0"
@@ -21,11 +26,6 @@ variable "servicebus_sku" {
 variable "key_vault_sku" {
   type    = string
   default = "standard"
-}
-
-variable "container_registry_sku" {
-  type    = string
-  default = "Basic"
 }
 
 variable "app_configuration_sku" {

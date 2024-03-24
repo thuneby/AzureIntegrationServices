@@ -5,6 +5,7 @@ locals {
 resource "azurecaf_name" "rg_shared_services_name" {
   name          = "integrations"
   resource_type = "azurerm_resource_group"
+  suffixes      = [var.env]
   clean_input   = true
 }
 

@@ -1,0 +1,1 @@
+apim_sku = Consumption_0

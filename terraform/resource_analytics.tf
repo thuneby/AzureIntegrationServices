@@ -5,6 +5,7 @@
 # resource "azurecaf_name" "rg-analytics-name" {
 #   name          = "analytics"
 #   resource_type = "azurerm_resource_group"
+#   suffixes      = [var.env]
 # }
 
 # resource "azurerm_log_analytics_workspace" "analytics" {

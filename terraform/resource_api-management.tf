@@ -7,6 +7,7 @@
 # resource "azurecaf_name" "apim_name" {
 #   name          = local.apim_name
 #   resource_type = "azurerm_api_management"
+#   suffixes      = [var.env]
 #   clean_input   = true
 # }
 

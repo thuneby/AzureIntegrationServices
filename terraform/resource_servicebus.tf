@@ -5,6 +5,7 @@
 # resource "azurecaf_name" "servicebus_name" {
 #   name          = local.servicebus_name
 #   resource_type = "azurerm_servicebus_namespace"
+#   suffixes      = [var.env]
 #   clean_input   = true
 # }
 

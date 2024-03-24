@@ -8,10 +8,10 @@ variable "env" {
   description = "The environment. dev, test or prod."
 }
 
-variable "apim_sku" {
-  type    = string
-  default = "Consumption_0"
-}
+# variable "apim_sku" {
+#   type    = string
+#   default = "Consumption_0"
+# }
 
 variable "analytics_sku" {
   type    = string

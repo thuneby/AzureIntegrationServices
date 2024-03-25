@@ -1,5 +1,7 @@
 locals {
   crname = "testcompany-integrations"
+  storagename = "filestorage"
+  containername = "fileuploads"
 }
 
 resource "azurecaf_name" "rg_shared_services_name" {
@@ -18,6 +20,37 @@ resource "azurerm_resource_group" "rg_shared_services" {
       tags
     ]
   }
+}
+
+resource "azurecaf_name" "file_storage" {
+  name          = local.storagename
+  resource_type = "azurerm_storage_account"
+  suffixes      = [var.env]
+  clean_input   = true
+}
+
+resource "azurerm_storage_account" "file_storage" {
+  name                     = azurecaf_name.file_storage.result
+  resource_group_name      = azurerm_resource_group.rg_shared_services.name
+  location                 = azurerm_resource_group.rg_shared_services.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = var.env
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+
+resource "azurerm_storage_container" "files" { 
+  name                  = local.containername
+  storage_account_name  = azurerm_storage_account.file_storage.name
+  container_access_type = "private"
 }
 
 # resource "azurecaf_name" "key_vault_name" {

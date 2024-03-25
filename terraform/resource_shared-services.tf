@@ -1,6 +1,6 @@
 locals {
-  crname = "testcompany-integrations"
-  storagename = "filestorage"
+  crname        = "testcompany-integrations"
+  storagename   = "filestorage"
   containername = "fileuploads"
 }
 
@@ -47,7 +47,7 @@ resource "azurerm_storage_account" "file_storage" {
   }
 }
 
-resource "azurerm_storage_container" "files" { 
+resource "azurerm_storage_container" "files" {
   name                  = local.containername
   storage_account_name  = azurerm_storage_account.file_storage.name
   container_access_type = "private"

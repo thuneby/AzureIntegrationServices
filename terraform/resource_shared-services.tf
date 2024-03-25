@@ -27,6 +27,7 @@ resource "azurecaf_name" "file_storage" {
   resource_type = "azurerm_storage_account"
   suffixes      = [var.env]
   clean_input   = true
+  random_length = 5
 }
 
 resource "azurerm_storage_account" "file_storage" {

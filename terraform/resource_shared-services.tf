@@ -2,7 +2,7 @@ locals {
   crname        = "testcompany-integrations"
   storagename   = "filestorage-mycorp"
   containername = "fileuploads"
-  keyvaultname  = "integrations-mycorp"
+  keyvaultname  = "integrations"
 }
 
 resource "azurecaf_name" "rg_shared_services_name" {

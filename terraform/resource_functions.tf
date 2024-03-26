@@ -58,19 +58,19 @@ resource "azurecaf_name" "example_app" {
 #   ]
 # }
 
-resource "azurerm_windows_function_app" "example" {
-  name                       = azurecaf_name.example_app.result
-  resource_group_name        = azurerm_resource_group.rg_shared_services.name
-  location                   = azurerm_resource_group.rg_shared_services.location
-  storage_account_name       = azurerm_storage_account.functions.name
-  storage_account_access_key = azurerm_storage_account.functions.primary_access_key
+# resource "azurerm_windows_function_app" "example" {
+#   name                       = azurecaf_name.example_app.result
+#   resource_group_name        = azurerm_resource_group.rg_shared_services.name
+#   location                   = azurerm_resource_group.rg_shared_services.location
+#   storage_account_name       = azurerm_storage_account.functions.name
+#   storage_account_access_key = azurerm_storage_account.functions.primary_access_key
 
-  service_plan_id = azurerm_service_plan.functions_plan.id
+#   service_plan_id = azurerm_service_plan.functions_plan.id
 
-  site_config {}
+#   site_config {}
 
-  depends_on = [
-    azurerm_service_plan.functions_plan,
-    azurerm_storage_account.functions
-  ]
-}
+#   depends_on = [
+#     azurerm_service_plan.functions_plan,
+#     azurerm_storage_account.functions
+#   ]
+# }

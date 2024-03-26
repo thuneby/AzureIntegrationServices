@@ -1,5 +1,5 @@
 locals {
-  plan_name = "Function-plan"
+  plan_name = "functions"
 }
 
 resource "azurecaf_name" "plan_name" {
@@ -33,8 +33,16 @@ resource "azurerm_storage_account" "functions" {
   account_replication_type = "LRS"
 }
 
+resource "azurecaf_name" "example_app" {
+  name          = "exaple"
+  resource_type = "azurerm_function_app"
+  suffixes      = [var.env]
+  clean_input   = true
+  random_length = 5
+}
+
 resource "azurerm_linux_function_app" "example" {
-  name                       = "example-function-app"
+  name                       = azurecaf_name.example_app.result
   resource_group_name        = azurerm_resource_group.rg_shared_services.name
   location                   = azurerm_resource_group.rg_shared_services.location
   storage_account_name       = azurerm_storage_account.functions.name

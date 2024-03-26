@@ -27,3 +27,17 @@ resource "azurerm_servicebus_namespace" "integrations" {
     ]
   }
 }
+
+resource "azurerm_servicebus_namespace_authorization_rule" "integrations" {
+  name         = "policy-integrations"
+  namespace_id = azurerm_servicebus_namespace.integrations.id
+  listen       = true
+  send         = true
+  manage       = false
+}
+
+resource "azurerm_servicebus_queue" "fileupload" {
+  name         = "fileupload-${var.env}"
+  namespace_id = azurerm_servicebus_namespace.integrations.id
+}
+

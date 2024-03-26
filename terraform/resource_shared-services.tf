@@ -1,10 +1,14 @@
 locals {
-  crname = "testcompany-integrations"
+  crname        = "testcompany-integrations"
+  storagename   = "filestorage-mycorp"
+  containername = "fileuploads"
+  keyvaultname  = "integrations"
 }
 
 resource "azurecaf_name" "rg_shared_services_name" {
   name          = "integrations"
   resource_type = "azurerm_resource_group"
+  suffixes      = [var.env]
   clean_input   = true
 }
 
@@ -19,9 +23,42 @@ resource "azurerm_resource_group" "rg_shared_services" {
   }
 }
 
+resource "azurecaf_name" "file_storage" {
+  name          = local.storagename
+  resource_type = "azurerm_storage_account"
+  suffixes      = [var.env]
+  clean_input   = true
+  # random_length = 5
+}
+
+resource "azurerm_storage_account" "file_storage" {
+  name                     = azurecaf_name.file_storage.result
+  resource_group_name      = azurerm_resource_group.rg_shared_services.name
+  location                 = azurerm_resource_group.rg_shared_services.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = var.env
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+
+resource "azurerm_storage_container" "files" {
+  name                  = local.containername
+  storage_account_name  = azurerm_storage_account.file_storage.name
+  container_access_type = "private"
+}
+
 resource "azurecaf_name" "key_vault_name" {
-  name          = "integrations"
+  name          = local.keyvaultname
   resource_type = "azurerm_key_vault"
+  suffixes      = [var.env]
   clean_input   = true
   random_length = 5
 }
@@ -62,37 +99,4 @@ resource "azurerm_role_assignment" "key_vault_cert_access_spn" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-resource "azurecaf_name" "container_registry_name" {
-  name          = local.crname
-  resource_type = "azurerm_container_registry"
-  clean_input   = true
-}
 
-resource "azurecaf_name" "app_configuration" {
-  name          = "integrations"
-  resource_type = "azurerm_app_configuration"
-  clean_input   = true
-}
-
-resource "azurerm_app_configuration" "integrations" {
-  name                = azurecaf_name.app_configuration.result
-  resource_group_name = azurerm_resource_group.rg_shared_services.name
-  location            = azurerm_resource_group.rg_shared_services.location
-  sku                 = var.app_configuration_sku
-  identity {
-    type = "SystemAssigned"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      tags
-    ]
-  }
-
-}
-
-resource "azurerm_role_assignment" "app_configuration_data_owner" {
-  scope                = azurerm_app_configuration.integrations.id
-  role_definition_name = "App Configuration Data Owner"
-  principal_id         = data.azurerm_client_config.current.object_id
-}

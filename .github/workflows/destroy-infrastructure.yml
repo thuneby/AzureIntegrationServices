@@ -1,50 +1,121 @@
-# This is a basic workflow to help you get started with Actions
+name: 'Destroy Integrations Infrastructure'
+run-name: Destroying infrastructure for ${{ inputs.environment }}
 
-name: Destroy Platform Infrastructure
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   # push:
-  #  paths:
-  #    - 'terraform/*.tf'
+  #   paths:
+  #     - 'terraform/*.tf'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      environment:
+        description: Bootstrap environment
+        type: environment
+        required: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_PATH: ./terraform
+  TF_BACKEND_CONFIG: '${{ github.event.inputs.environment }}.tfbackend'
+  TF_VAR_FILE: '${{ github.event.inputs.environment }}.tfvars'
+
 jobs:
-  # This workflow contains a single job called "build"
-  resourcegroups:
-    # The type of runner that the job will run on
+  terraform-plan:
+    name: 'Terraform-Plan'
     runs-on: ubuntu-latest
-    
-    name: 'Destroy rg-animalchat and resources'
+    environment: ${{ inputs.environment }}
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      TF_VAR_env: ${{ github.event.inputs.environment }}
 
-      # Runs a single command using the runners shell
-      - name: 'Terraform init'
-        id: init
-        run: |
-          cd terraform
-          terraform init          
-      - name: 'Terraform plan'
-        id: plan
-        run: |
-          cd terraform
-          terraform plan -destroy -out=terraform.plan
-                    
-      - name: 'Terraform apply'
-        id: apply
-        run: |
-          cd terraform
-          terraform apply -auto-approve ./terraform.plan   
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_PATH }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run:  terraform init -backend-config=${{ env.TF_BACKEND_CONFIG }}
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run:  terraform plan -destroy -out=terraform.plan -var-file=${{ env.TF_VAR_FILE }}
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-plan
+        path: | 
+          ${{ env.TF_PATH }}/terraform.plan
+          ${{ env.TF_PATH }}/.terraform.lock.hcl
+        if-no-files-found: error 
+
+  approve:
+    needs: [terraform-plan]
+    environment: manual-gate
+    runs-on: ubuntu-latest
+    steps:
+    - name: Approval
+      run: echo Approved
+
+  terraform-apply:
+    name: 'Terraform-Apply'
+    needs: [approve]
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_env: ${{ github.event.inputs.environment }}
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_PATH }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - uses: actions/checkout@v4
+
+    - name: Get prepared plan
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-plan
+        path: ${{ env.TF_PATH }}
+    
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run:  terraform init -backend-config=${{ env.TF_BACKEND_CONFIG }}
+
+    # # Checks that all Terraform configuration files adhere to a canonical format
+    # - name: Terraform Format
+    #   run: |
+    #     cd terraform
+    #     terraform fmt -check
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Apply
+      run:  terraform apply -auto-approve terraform.plan

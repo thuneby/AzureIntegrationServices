@@ -1,11 +1,13 @@
 locals {
-  servicebus_name = "integrations"
+  servicebus_name = "integrations-mycorp"
 }
 
 resource "azurecaf_name" "servicebus_name" {
   name          = local.servicebus_name
   resource_type = "azurerm_servicebus_namespace"
+  suffixes      = [var.env]
   clean_input   = true
+  #   random_length = 5
 }
 
 resource "azurerm_servicebus_namespace" "integrations" {

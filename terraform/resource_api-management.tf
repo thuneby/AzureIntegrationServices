@@ -1,5 +1,5 @@
 locals {
-  apim_name       = "integration"
+  apim_name       = "integrations-mycorp"
   publisher_name  = "TestCompany"
   publisher_email = "info@testcompany.com"
 }
@@ -7,6 +7,7 @@ locals {
 resource "azurecaf_name" "apim_name" {
   name          = local.apim_name
   resource_type = "azurerm_api_management"
+  suffixes      = [var.env]
   clean_input   = true
 }
 
@@ -24,8 +25,3 @@ resource "azurerm_api_management" "integration" {
   }
 }
 
-resource "azurerm_role_assignment" "apim_service_contributor" {
-  scope                = azurerm_app_configuration.integrations.id
-  role_definition_name = "API Management Service Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
-}

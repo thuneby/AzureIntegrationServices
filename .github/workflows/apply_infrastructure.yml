@@ -1,4 +1,5 @@
-name: 'Apply Platform Infrastructure'
+name: 'Apply Integrations Infrastructure'
+run-name: Applying infrastructure for ${{ inputs.environment }}
 
 on:
   # push:
@@ -14,13 +15,13 @@ on:
         required: true
 
 permissions:
+  id-token: write
   contents: read
 
 env:
-  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  TF_PATH: ./terraform
+  TF_BACKEND_CONFIG: '${{ github.event.inputs.environment }}.tfbackend'
+  TF_VAR_FILE: '${{ github.event.inputs.environment }}.tfvars'
 
 jobs:
   terraform-validate:
@@ -29,7 +30,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./terraform
+        working-directory: ${{ env.TF_PATH }}
 
     steps:
       - uses: actions/checkout@v4
@@ -50,13 +51,19 @@ jobs:
   terraform-plan:
     name: 'Terraform-Plan'
     runs-on: ubuntu-latest
-
+    environment: ${{ inputs.environment }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_env: ${{ github.event.inputs.environment }}
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
+        working-directory: ${{ env.TF_PATH }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -69,21 +76,19 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: |
-        terraform init
+      run:  terraform init -backend-config=${{ env.TF_BACKEND_CONFIG }}
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: |
-        terraform plan -input=false -out=terraform.plan
+      run:  terraform plan -input=false -out=terraform.plan -var-file=${{ env.TF_VAR_FILE }}
 
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
       with:
         name: terraform-plan
         path: | 
-          ./terraform/terraform.plan
-          ./terraform/.terraform.lock.hcl
+          ${{ env.TF_PATH }}/terraform.plan
+          ${{ env.TF_PATH }}/.terraform.lock.hcl
         if-no-files-found: error 
 
   approve:
@@ -98,11 +103,18 @@ jobs:
     name: 'Terraform-Apply'
     needs: [approve]
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_env: ${{ github.event.inputs.environment }}
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
-        working-directory: ./terraform
+        working-directory: ${{ env.TF_PATH }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -112,7 +124,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-plan
-        path: ./terraform
+        path: ${{ env.TF_PATH }}
     
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
@@ -120,7 +132,7 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run:  terraform init
+      run:  terraform init -backend-config=${{ env.TF_BACKEND_CONFIG }}
 
     # # Checks that all Terraform configuration files adhere to a canonical format
     # - name: Terraform Format
@@ -130,4 +142,4 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Apply
-      run:  terraform apply -auto-approve -input=false terraform.plan
+      run:  terraform apply -auto-approve terraform.plan

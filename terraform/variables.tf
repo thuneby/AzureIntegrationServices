@@ -3,32 +3,34 @@ variable "location" {
   default = "WestEurope"
 }
 
-variable "apim_sku" {
-  type    = string
-  default = "Consumption_0"
-}
-
-variable "analytics_sku" {
-  type    = string
-  default = "PerGB2018"
+variable "env" {
+  type        = string
+  description = "The environment. dev, test or prod."
 }
 
 variable "servicebus_sku" {
-  type    = string
-  default = "Basic"
+  type        = string
+  description = "SKU name for Azure Service Bus"
+  nullable    = false
+}
+
+variable "apim_sku" {
+  type        = string
+  description = "SKU name for Azure API Management"
+  nullable    = false
 }
 
 variable "key_vault_sku" {
-  type    = string
-  default = "standard"
+  type        = string
+  description = "SKU name for Azure Key Vault"
+  nullable    = false
 }
 
-variable "container_registry_sku" {
-  type    = string
-  default = "Basic"
+variable "analytics_sku" {
+  type        = string
+  description = "SKU name for Azure Application Insights"
+  nullable    = false
 }
 
-variable "app_configuration_sku" {
-  type    = string
-  default = "free"
-}
+
+

@@ -58,9 +58,9 @@ resource "azurerm_storage_container" "files" {
 resource "azurecaf_name" "key_vault_name" {
   name          = local.keyvaultname
   resource_type = "azurerm_key_vault"
-  clean_input   = true
-  random_length = 4
   suffixes      = [var.env]
+  clean_input   = true
+  random_length = 5
 }
 
 resource "azurerm_key_vault" "integrations_keyvault" {

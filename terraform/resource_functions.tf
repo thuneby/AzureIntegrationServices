@@ -69,6 +69,14 @@ resource "azurerm_windows_function_app" "example" {
 
   site_config {}
 
+  app_settings = {}
+
+  lifecycle {
+    ignore_changes = [
+      tags, site_config, app_settings
+    ]
+  }
+
   depends_on = [
     azurerm_service_plan.functions_plan,
     azurerm_storage_account.functions

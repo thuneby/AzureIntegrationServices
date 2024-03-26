@@ -1,28 +1,28 @@
-# locals {
-#   servicebus_name = "integrations"
-# }
+locals {
+  servicebus_name = "integrations"
+}
 
-# resource "azurecaf_name" "servicebus_name" {
-#   name          = local.servicebus_name
-#   resource_type = "azurerm_servicebus_namespace"
-#   suffixes      = [var.env]
-#   clean_input   = true
-# }
+resource "azurecaf_name" "servicebus_name" {
+  name          = local.servicebus_name
+  resource_type = "azurerm_servicebus_namespace"
+  suffixes      = [var.env]
+  clean_input   = true
+}
 
-# resource "azurerm_servicebus_namespace" "integrations" {
-#   name                = azurecaf_name.servicebus_name.result
-#   resource_group_name = azurerm_resource_group.rg_shared_services.name
-#   location            = azurerm_resource_group.rg_shared_services.location
-#   sku                 = var.servicebus_sku
-#   capacity            = 0
+resource "azurerm_servicebus_namespace" "integrations" {
+  name                = azurecaf_name.servicebus_name.result
+  resource_group_name = azurerm_resource_group.rg_shared_services.name
+  location            = azurerm_resource_group.rg_shared_services.location
+  sku                 = var.servicebus_sku
+  capacity            = 0
 
-#   identity {
-#     type = "SystemAssigned"
-#   }
+  identity {
+    type = "SystemAssigned"
+  }
 
-#   lifecycle {
-#     ignore_changes = [
-#       tags
-#     ]
-#   }
-# }
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}

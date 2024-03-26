@@ -1,5 +1,5 @@
 locals {
-  apim_name       = "integration"
+  apim_name       = "integrations-mycorp"
   publisher_name  = "TestCompany"
   publisher_email = "info@testcompany.com"
 }

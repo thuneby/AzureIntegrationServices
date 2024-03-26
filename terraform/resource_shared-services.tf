@@ -1,7 +1,8 @@
 locals {
   crname        = "testcompany-integrations"
-  storagename   = "filestorage"
+  storagename   = "filestorage-mycorp"
   containername = "fileuploads"
+  keyvaultname  = "integrations-mycorp"
 }
 
 resource "azurecaf_name" "rg_shared_services_name" {
@@ -27,7 +28,7 @@ resource "azurecaf_name" "file_storage" {
   resource_type = "azurerm_storage_account"
   suffixes      = [var.env]
   clean_input   = true
-  random_length = 5
+  # random_length = 5
 }
 
 resource "azurerm_storage_account" "file_storage" {
@@ -55,11 +56,11 @@ resource "azurerm_storage_container" "files" {
 }
 
 resource "azurecaf_name" "key_vault_name" {
-  name          = "integrations"
+  name          = local.keyvaultname
   resource_type = "azurerm_key_vault"
-  suffixes      = [var.env]
   clean_input   = true
-  random_length = 5
+  random_length = 4
+  suffixes      = [var.env]
 }
 
 resource "azurerm_key_vault" "integrations_keyvault" {

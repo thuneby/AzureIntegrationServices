@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "functions" {
 }
 
 resource "azurecaf_name" "example_app" {
-  name          = "exaple"
+  name          = "example"
   resource_type = "azurerm_function_app"
   suffixes      = [var.env]
   clean_input   = true

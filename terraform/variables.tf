@@ -24,7 +24,7 @@ variable "key_vault_sku" {
   type        = string
   description = "SKU name for Azure Key Vault"
   nullable    = false
-} 
+}
 
 variable "analytics_sku" {
   type        = string

@@ -32,5 +32,17 @@ variable "analytics_sku" {
   nullable    = false
 }
 
+variable "functions_plan_os" {
+  type        = string
+  description = "The OS type for the Azure Functions App Service Plan"
+  nullable    = false
+}
+
+variable "functions_plan_sku" {
+  type        = string
+  description = "The SKU name for the Azure Functions App Service Plan"
+  nullable    = false
+}
+
 
 

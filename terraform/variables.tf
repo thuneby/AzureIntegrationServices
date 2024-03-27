@@ -50,5 +50,11 @@ variable "cosmos_troughput" {
   nullable    = false
 }
 
+variable "cosmos_free_tier" {
+  type        = bool
+  description = "Enable free tier for Cosmos DB account"
+  default     = false
+}
+
 
 

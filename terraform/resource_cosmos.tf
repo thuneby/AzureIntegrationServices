@@ -18,7 +18,7 @@ resource "azurerm_cosmosdb_account" "integrations" {
   location            = azurerm_resource_group.rg_shared_services.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB"
-  enable_free_tier    = true
+  enable_free_tier    = var.cosmos_free_tier
 
   consistency_policy {
     consistency_level       = "BoundedStaleness"

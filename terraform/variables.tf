@@ -44,5 +44,11 @@ variable "functions_plan_sku" {
   nullable    = false
 }
 
+variable "cosmos_troughput" {
+  type        = number
+  description = "The throughput for the Cosmos DB account"
+  nullable    = false
+}
+
 
 

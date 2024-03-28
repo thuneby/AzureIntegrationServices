@@ -44,7 +44,7 @@ resource "azurerm_cosmosdb_sql_container" "products" {
   resource_group_name   = azurerm_resource_group.rg_shared_services.name
   account_name          = azurerm_cosmosdb_account.integrations.name
   database_name         = azurerm_cosmosdb_sql_database.main.name
-  partition_key_path    = "/categoryId"
+  partition_key_path    = "/id"
   partition_key_version = 1
   throughput            = var.cosmos_troughput
 }

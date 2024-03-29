@@ -8,6 +8,10 @@ terraform {
       source  = "aztfmod/azurecaf"
       version = "1.2.28"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "2.47.0"
+    }
   }
 
   backend "azurerm" {

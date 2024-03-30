@@ -4,3 +4,5 @@ servicebus_sku     = "Basic"
 key_vault_sku      = "standard"
 functions_plan_os  = "Windows"
 functions_plan_sku = "Y1"
+cosmos_troughput   = 400
+cosmos_free_tier   = true

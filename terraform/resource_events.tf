@@ -15,6 +15,7 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "fileuploaded" {
   system_topic                  = azurerm_eventgrid_system_topic.fileupload.name
   resource_group_name           = azurerm_resource_group.rg_shared_services.name
   service_bus_queue_endpoint_id = azurerm_servicebus_queue.fileupload.id
+  event_delivery_schema         = "CloudEventSchemaV1_0"
   included_event_types          = ["Microsoft.Storage.BlobCreated"]
 
   depends_on = [

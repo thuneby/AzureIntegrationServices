@@ -38,6 +38,16 @@ resource "azurerm_storage_account" "file_storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
+  blob_properties {
+    cors_rule {
+      allowed_headers    = ["*"]
+      allowed_methods    = ["GET", "POST", "PUT", "DELETE", "HEAD"]
+      allowed_origins    = ["*"]
+      exposed_headers    = ["*"]
+      max_age_in_seconds = 3600
+    }
+  }
+
   tags = {
     environment = var.env
   }

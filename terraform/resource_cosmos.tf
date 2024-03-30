@@ -43,11 +43,11 @@ resource "azurerm_cosmosdb_sql_database" "main" {
   throughput          = var.cosmos_troughput
 }
 
-# resource "azurerm_cosmosdb_sql_container" "products" {
-#   name                  = local.container_name
-#   resource_group_name   = azurerm_resource_group.rg_shared_services.name
-#   account_name          = azurerm_cosmosdb_account.integrations.name
-#   database_name         = azurerm_cosmosdb_sql_database.main.name
-#   partition_key_path    = "/id"
-#   partition_key_version = 1
-# }
+resource "azurerm_cosmosdb_sql_container" "products" {
+  name                  = local.container_name
+  resource_group_name   = azurerm_resource_group.rg_shared_services.name
+  account_name          = azurerm_cosmosdb_account.integrations.name
+  database_name         = azurerm_cosmosdb_sql_database.main.name
+  partition_key_path    = "/id"
+  partition_key_version = 1
+}

@@ -32,6 +32,10 @@ resource "azurerm_role_assignment" "contributor" {
   scope                = data.azurerm_subscription.current.id
   role_definition_name = "Contributor"
   principal_id         = azuread_service_principal.functions.object_id
+
+  depends_on = [
+    azuread_service_principal.functions
+  ]
 }
 
 resource "azurerm_role_assignment" "rbac_admin" {
@@ -40,4 +44,8 @@ resource "azurerm_role_assignment" "rbac_admin" {
   scope                = data.azurerm_subscription.current.id
   role_definition_name = "Role Based Access Control Administrator"
   principal_id         = azuread_service_principal.functions.object_id
+
+  depends_on = [
+    azuread_service_principal.functions
+  ]
 }

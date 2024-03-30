@@ -25,3 +25,19 @@ resource "azurerm_key_vault_secret" "function_client_secret" {
     azuread_service_principal_password.functions
   ]
 }
+
+resource "azurerm_role_assignment" "contributor" {
+  name                 = "b24988ac-6180-42a0-ab88-20f7382dd24c"
+  description          = "Grants full access to manage all resources, but does not allow you to assign roles in Azure RBAC, manage assignments in Azure Blueprints, or share image galleries."
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Contributor"
+  principal_id         = azuread_service_principal.functions.object_id
+}
+
+resource "azurerm_role_assignment" "rbac_admin" {
+  name                 = "f58310d9-a9f6-439a-9e8d-f62e7b41a168"
+  description          = "Manage access to Azure resources by assigning roles using Azure RBAC. This role does not allow you to manage access using other ways, such as Azure Policy."
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Role Based Access Control Administrator"
+  principal_id         = azuread_service_principal.functions.object_id
+}

@@ -30,6 +30,10 @@ resource "azurerm_cosmosdb_account" "integrations" {
     location          = azurerm_resource_group.rg_shared_services.location
     failover_priority = 0
   }
+
+  capacity {
+    total_throughput_limit = 1000
+  }
 }
 
 resource "azurerm_cosmosdb_sql_database" "main" {
@@ -46,5 +50,4 @@ resource "azurerm_cosmosdb_sql_container" "products" {
   database_name         = azurerm_cosmosdb_sql_database.main.name
   partition_key_path    = "/id"
   partition_key_version = 1
-  throughput            = var.cosmos_troughput
 }

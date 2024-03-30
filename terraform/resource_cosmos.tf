@@ -61,3 +61,15 @@ resource "azurerm_cosmosdb_sql_container" "events" {
   partition_key_path    = "/id"
   partition_key_version = 1
 }
+
+resource "azurerm_key_vault_secret" "cosmos_connection_string" {
+  name         = "cosmos-connection-string"
+  value        = azurerm_cosmosdb_account.integrations.primary_sql_connection_string
+  key_vault_id = azurerm_key_vault.integrations_keyvault.id
+  content_type = "text/plain"
+
+  depends_on = [
+    azurerm_key_vault.integrations_keyvault,
+    azurerm_cosmosdb_account.integrations
+  ]
+}

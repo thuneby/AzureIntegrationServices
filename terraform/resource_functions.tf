@@ -51,7 +51,12 @@ resource "azurerm_windows_function_app" "integrations" {
 
   site_config {}
 
-  app_settings = {}
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
+    "ServiceBusConnection"     = "${azurerm_servicebus_namespace_authorization_rule.integrations.primary_connection_string}"
+    "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
+    "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
+  }
 
   lifecycle {
     ignore_changes = [
@@ -61,9 +66,14 @@ resource "azurerm_windows_function_app" "integrations" {
 
   depends_on = [
     azurerm_service_plan.functions_plan,
-    azurerm_storage_account.integration_functions
+    azurerm_storage_account.integration_functions,
+    azurerm_cosmosdb_sql_database.main,
+    azurerm_cosmosdb_sql_container.events,
+    azurerm_servicebus_queue.fileupload
   ]
 }
+
+
 
 
 resource "azurecaf_name" "api_fuctions_storage" {
@@ -100,7 +110,11 @@ resource "azurerm_windows_function_app" "apis" {
 
   site_config {}
 
-  app_settings = {}
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
+    "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
+    "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
+  }
 
   lifecycle {
     ignore_changes = [
@@ -110,7 +124,9 @@ resource "azurerm_windows_function_app" "apis" {
 
   depends_on = [
     azurerm_service_plan.functions_plan,
-    azurerm_storage_account.api_functions
+    azurerm_storage_account.api_functions,
+    azurerm_cosmosdb_sql_database.main,
+    azurerm_cosmosdb_sql_container.events
   ]
 }
 

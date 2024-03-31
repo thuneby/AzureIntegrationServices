@@ -1,6 +1,6 @@
 locals {
   workflow_name = "workflow1"
-  schema        = jsonencode((file("${path.module}/cloudEventSpec.json")))
+  schema        = file("${path.module}/cloudEventSpec.json")
 }
 
 resource "azurecaf_name" "workflow_name" {
@@ -19,7 +19,9 @@ resource "azurerm_logic_app_workflow" "workflow1" {
 resource "azurerm_logic_app_trigger_http_request" "workflow1_trigger" {
   name         = "workflow1-trigger"
   logic_app_id = azurerm_logic_app_workflow.workflow1.id
-  schema       = local.schema
+  schema       = <<SCHEMA
+  ${local.schema}
+  SCHEMA
 }
 
 resource "azurerm_eventgrid_system_topic_event_subscription" "fileuploaded_flow" {

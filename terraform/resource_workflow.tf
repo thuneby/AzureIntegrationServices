@@ -14,6 +14,10 @@ resource "azurerm_logic_app_workflow" "workflow1" {
   name                = local.workflow_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rg_shared_services.name
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 resource "azurerm_logic_app_trigger_http_request" "workflow1_trigger" {

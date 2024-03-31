@@ -49,21 +49,49 @@ resource "azurerm_windows_function_app" "integrations" {
   storage_account_access_key = azurerm_storage_account.integration_functions.primary_access_key
   service_plan_id            = azurerm_service_plan.functions_plan.id
 
-  site_config {}
+  site_config {
+    application_stack {
+      dotnet_version = "v8.0"
+    }
+  }
 
-  app_settings = {}
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
+    "ServiceBusConnection"     = "${azurerm_servicebus_namespace_authorization_rule.integrations.primary_connection_string}"
+    "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
+    "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   lifecycle {
     ignore_changes = [
-      tags, site_config, app_settings
+      tags
     ]
   }
 
   depends_on = [
     azurerm_service_plan.functions_plan,
-    azurerm_storage_account.integration_functions
+    azurerm_storage_account.integration_functions,
+    azurerm_cosmosdb_sql_database.main,
+    azurerm_cosmosdb_sql_container.events,
+    azurerm_servicebus_queue.fileupload
   ]
 }
+
+resource "azurerm_role_assignment" "servicebus_integration_app" {
+  scope                = azurerm_servicebus_queue.fileupload.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_windows_function_app.integrations.identity[0].principal_id
+
+  depends_on = [
+    azurerm_windows_function_app.integrations,
+    azurerm_servicebus_queue.fileupload
+  ]
+}
+
 
 
 resource "azurecaf_name" "api_fuctions_storage" {
@@ -98,37 +126,33 @@ resource "azurerm_windows_function_app" "apis" {
   storage_account_access_key = azurerm_storage_account.api_functions.primary_access_key
   service_plan_id            = azurerm_service_plan.functions_plan.id
 
-  site_config {}
+  site_config {
+    application_stack {
+      dotnet_version = "v8.0"
+    }
+  }
 
-  app_settings = {}
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
+    "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
+    "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   lifecycle {
     ignore_changes = [
-      tags, site_config, app_settings
+      tags
     ]
   }
 
   depends_on = [
     azurerm_service_plan.functions_plan,
-    azurerm_storage_account.api_functions
+    azurerm_storage_account.api_functions,
+    azurerm_cosmosdb_sql_database.main,
+    azurerm_cosmosdb_sql_container.events
   ]
 }
 
-
-
-# resource "azurerm_linux_function_app" "example" {
-#   name                       = azurecaf_name.example_app.result
-#   resource_group_name        = azurerm_resource_group.rg_shared_services.name
-#   location                   = azurerm_resource_group.rg_shared_services.location
-#   storage_account_name       = azurerm_storage_account.functions.name
-#   storage_account_access_key = azurerm_storage_account.functions.primary_access_key
-
-#   service_plan_id = azurerm_service_plan.functions_plan.id
-
-#   site_config {}
-
-#   depends_on = [
-#     azurerm_service_plan.functions_plan,
-#     azurerm_storage_account.functions
-#   ]
-# }

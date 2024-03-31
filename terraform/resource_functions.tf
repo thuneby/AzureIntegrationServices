@@ -61,7 +61,7 @@ resource "azurerm_windows_function_app" "integrations" {
     "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
     "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
   }
- 
+
   identity {
     type = "SystemAssigned"
   }

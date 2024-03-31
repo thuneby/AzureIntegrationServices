@@ -77,16 +77,16 @@ resource "azurerm_windows_function_app" "integrations" {
   ]
 }
 
-resource "azurerm_role_assignment" "servicebus_integration_app" {
-  scope                = azurerm_servicebus_queue.fileupload.id
-  role_definition_name = "Azure Service Bus Data Receiver"
-  principal_id         = azurerm_windows_function_app.integrations.identity[0].principal_id
+# resource "azurerm_role_assignment" "servicebus_integration_app" {
+#   scope                = azurerm_servicebus_queue.fileupload.id
+#   role_definition_name = "Azure Service Bus Data Receiver"
+#   principal_id         = azurerm_windows_function_app.integrations.identity[0].principal_id
 
-  depends_on = [
-    azurerm_windows_function_app.integrations,
-    azurerm_servicebus_queue.fileupload
-  ]
-}
+#   depends_on = [
+#     azurerm_windows_function_app.integrations,
+#     azurerm_servicebus_queue.fileupload
+#   ]
+# }
 
 
 

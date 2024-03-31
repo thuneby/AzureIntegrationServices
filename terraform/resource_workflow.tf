@@ -43,3 +43,14 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "fileuploaded_flow"
     azurerm_logic_app_trigger_http_request.workflow1_trigger
   ]
 }
+
+resource "azurerm_role_assignment" "fileupload_workflow" {
+  scope                = azurerm_storage_account.file_storage.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = azurerm_logic_app_workflow.workflow1.identity[0].principal_id
+
+  depends_on = [
+    azurerm_storage_account.file_storage,
+    azurerm_logic_app_workflow.workflow1
+  ]
+}

@@ -19,9 +19,7 @@ resource "azurerm_logic_app_workflow" "workflow1" {
 resource "azurerm_logic_app_trigger_http_request" "workflow1_trigger" {
   name         = "workflow1-trigger"
   logic_app_id = azurerm_logic_app_workflow.workflow1.id
-  schema       = <<SCHEMA
-    ${local.schema}
-    SCHEMA
+  schema       = local.schema
 }
 
 resource "azurerm_eventgrid_system_topic_event_subscription" "fileuploaded_flow" {

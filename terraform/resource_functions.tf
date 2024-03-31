@@ -49,7 +49,11 @@ resource "azurerm_windows_function_app" "integrations" {
   storage_account_access_key = azurerm_storage_account.integration_functions.primary_access_key
   service_plan_id            = azurerm_service_plan.functions_plan.id
 
-  site_config {}
+  site_config {
+    application_stack {
+      dotnet_version = "v8.0"
+    }
+  }
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
@@ -57,14 +61,14 @@ resource "azurerm_windows_function_app" "integrations" {
     "CosmosDBConnection"       = "${azurerm_cosmosdb_account.integrations.primary_sql_connection_string}"
     "CosmosDatabaseName"       = "${azurerm_cosmosdb_sql_database.main.name}"
   }
-
+ 
   identity {
     type = "SystemAssigned"
   }
 
   lifecycle {
     ignore_changes = [
-      tags, site_config
+      tags
     ]
   }
 
@@ -122,7 +126,11 @@ resource "azurerm_windows_function_app" "apis" {
   storage_account_access_key = azurerm_storage_account.api_functions.primary_access_key
   service_plan_id            = azurerm_service_plan.functions_plan.id
 
-  site_config {}
+  site_config {
+    application_stack {
+      dotnet_version = "v8.0"
+    }
+  }
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "dotnet-isolated"
@@ -136,7 +144,7 @@ resource "azurerm_windows_function_app" "apis" {
 
   lifecycle {
     ignore_changes = [
-      tags, site_config
+      tags
     ]
   }
 

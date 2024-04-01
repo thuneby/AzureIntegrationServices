@@ -48,6 +48,10 @@ resource "azurerm_storage_account" "file_storage" {
     }
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = {
     environment = var.env
   }

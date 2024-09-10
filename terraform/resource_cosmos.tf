@@ -19,7 +19,7 @@ resource "azurerm_cosmosdb_account" "integrations" {
   location            = azurerm_resource_group.rg_shared_services.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB"
-  enable_free_tier    = var.cosmos_free_tier
+  free_tier_enabled   = var.cosmos_free_tier
 
   consistency_policy {
     consistency_level       = "BoundedStaleness"
@@ -49,7 +49,7 @@ resource "azurerm_cosmosdb_sql_container" "products" {
   resource_group_name   = azurerm_resource_group.rg_shared_services.name
   account_name          = azurerm_cosmosdb_account.integrations.name
   database_name         = azurerm_cosmosdb_sql_database.main.name
-  partition_key_path    = "/id"
+  partition_key_paths   = ["/id"]
   partition_key_version = 1
 }
 
@@ -58,7 +58,7 @@ resource "azurerm_cosmosdb_sql_container" "events" {
   resource_group_name   = azurerm_resource_group.rg_shared_services.name
   account_name          = azurerm_cosmosdb_account.integrations.name
   database_name         = azurerm_cosmosdb_sql_database.main.name
-  partition_key_path    = "/id"
+  partition_key_paths   = ["/id"]
   partition_key_version = 1
 }
 

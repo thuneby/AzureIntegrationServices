@@ -44,7 +44,7 @@ jobs:
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: 'Az CLI login'
       uses: azure/login@v2
@@ -100,7 +100,7 @@ jobs:
 
     steps:
     # Checkout the repository to the GitHub Actions runner
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: 'Az CLI login'
       uses: azure/login@v2

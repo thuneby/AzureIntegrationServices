@@ -33,7 +33,7 @@ jobs:
         working-directory: ${{ env.TF_PATH }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -68,7 +68,7 @@ jobs:
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: 'Az CLI login'
       uses: azure/login@v2
@@ -123,7 +123,7 @@ jobs:
 
     steps:
     # Checkout the repository to the GitHub Actions runner
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: 'Az CLI login'
       uses: azure/login@v2
